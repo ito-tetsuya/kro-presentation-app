@@ -10,7 +10,7 @@ class CommonForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      key: key,
+      // key: key,
       padding: EdgeInsets.all(10),
       child: child,
     );

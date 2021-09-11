@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class CommonButton extends StatelessWidget {
 
   final String label;
+  final Function onPressed;
 
-  CommonButton({ required this.label });
+  CommonButton({ required this.label, required this.onPressed });
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,7 @@ class CommonButton extends StatelessWidget {
       width: double.infinity,
       height: 50,
       child: ElevatedButton(
-        onPressed: () => print('おうか'),
+        onPressed: () => onPressed(),
         child: Text(label),
       ),
     );

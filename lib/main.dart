@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_sample/pages/login.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_sample/views/pages/sign_in.dart';
+import 'package:flutter_sample/commons/web_socket.dart';
 
-void main() {
+void main() async {
+  const mode = bool.hasEnvironment('ENV') ? String.fromEnvironment('ENV') : null;
+  print(mode);
+  await dotenv.load(fileName: mode == 'production' ? '.env.prod' : '.env.dev');
+  WebSocket.init();
+  print(mode);
   runApp(MyApp());
 }
 
@@ -23,7 +30,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: Login(),
+      home: SignIn(),
     );
   }
 }
