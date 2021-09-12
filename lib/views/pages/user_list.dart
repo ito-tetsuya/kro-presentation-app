@@ -12,40 +12,44 @@ class UserList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ListViewModel()..init(),
-      child: CommonScaffold(
-        appBarText: '一覧',
-        body: Consumer<ListViewModel>(
-          builder: (context, viewModel, _) {
-            if (!viewModel.isReady) {
-              return Container();
-            }
-            if (viewModel.receiveUser != null) {
-              WidgetsBinding
-                  .instance!
-                  .addPostFrameCallback(
-                      (_) => _showReceiveDialog(context, viewModel.receiveUser!)
-              );
-            }
-            return ListView.builder(
-              itemCount: viewModel.users.length,
-              itemBuilder: (BuildContext context, int index) {
-                final user = viewModel.users[index];
-                return Card(
-                  elevation: 8,
-                  child: ListTile(
-                    leading: UserImage(
-                      radius: 20,
-                      path: user.imagePath,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: ChangeNotifierProvider(
+        create: (_) => ListViewModel()..init(),
+        child: CommonScaffold(
+          showBack: false,
+          appBarText: '一覧',
+          body: Consumer<ListViewModel>(
+            builder: (context, viewModel, _) {
+              if (!viewModel.isReady) {
+                return Container();
+              }
+              // if (viewModel.receiveUser != null) {
+              //   WidgetsBinding
+              //       .instance!
+              //       .addPostFrameCallback(
+              //           (_) => _showReceiveDialog(context, viewModel.receiveUser!)
+              //   );
+              // }
+              return ListView.builder(
+                itemCount: viewModel.users.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final user = viewModel.users[index];
+                  return Card(
+                    elevation: 8,
+                    child: ListTile(
+                      leading: UserImage(
+                        radius: 20,
+                        path: user.imagePath,
+                      ),
+                      title: Text(user.nickName),
+                      onTap: () => _showDetailDialog(context, user),
                     ),
-                    title: Text(user.nickName),
-                    onTap: () => _showDetailDialog(context, user),
-                  ),
-                );
-              },
-            );
-          },
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -61,6 +65,7 @@ class UserList extends StatelessWidget {
   void _showReceiveDialog(BuildContext context, User user) {
     showDialog(
       context: context,
+      barrierDismissible: false, // 周りを押下してもダイアログを閉じない
       builder: (_) => ReceiveDialog(user: user),
     );
   }

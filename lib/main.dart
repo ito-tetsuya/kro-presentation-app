@@ -5,10 +5,10 @@ import 'package:flutter_sample/commons/web_socket.dart';
 
 void main() async {
   const mode = bool.hasEnvironment('ENV') ? String.fromEnvironment('ENV') : null;
-  print(mode);
-  await dotenv.load(fileName: mode == 'production' ? '.env.prod' : '.env.dev');
+  // print(mode);
+  // await dotenv.load(fileName: mode == 'production' ? '.env.prod' : '.env.dev');
   WebSocket.init();
-  print(mode);
+  // print(mode);
   runApp(MyApp());
 }
 

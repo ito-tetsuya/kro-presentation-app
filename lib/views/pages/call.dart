@@ -15,37 +15,42 @@ class Call extends StatelessWidget {
       create: (_) => CallViewModel()..init(),
       child: CommonScaffold(
         appBarText: nickname,
-        body: StreamBuilder<MessageInfo>(
-          stream: WebSocket.mediaStream,
-          builder: (context, AsyncSnapshot<MessageInfo> snapShot) {
-            if (!snapShot.hasData) {
-              print('StreamBuilder まだはやい');
-              return Container();
-            }
-            print('StreamBuilder きてます');
-            return Consumer<CallViewModel>(
-              builder: (context, viewModel, _) {
-                viewModel.renderer.srcObject = snapShot.data!.stream!;
-                return Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: Stack(
-                    children: [
+        body: Consumer<CallViewModel>(
+          builder: (context, viewModel, _) {
+            return WillPopScope(
+              onWillPop: () async {
+                viewModel.stopCall();
+                return false;
+              },
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                child: Stack(
+                  children: [
+                    if (viewModel.isReady)
                       RTCVideoView(viewModel.renderer),
+                    if (!viewModel.isReady)
                       Align(
-                          alignment: Alignment.bottomCenter,
-                          child: IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: Icon(Icons.call_end),
-                            color: Colors.red,
-                          )
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
-                    ],
-                  ),
-                );
-              }
+                    Align(
+                        alignment: Alignment.bottomCenter,
+                        child: IconButton(
+                          onPressed: () => viewModel.stopCall(),
+                          icon: Icon(Icons.call_end),
+                          color: Colors.red,
+                        )
+                    ),
+                  ],
+                ),
+              ),
             );
-          },
+          }
         ),
       ),
     );

@@ -6,5 +6,15 @@
       "**/.*",
       "**/node_modules/**"
     ]
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/assets/.env.prod",
+      "destination": "/assets/.env.prod"
+    },
+    {
+      "source": "**",
+      "destination": "/index.html"
+    }
+  ]
 }

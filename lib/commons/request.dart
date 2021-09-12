@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_sample/commons/env.dart';
 import 'package:http/http.dart' as Http;
 
 import 'common.dart';
@@ -22,11 +23,13 @@ class Request {
 
   static Future<Http.Response> _callGet(String path, Map<String, dynamic>? param) async {
     final uri = createUri(path, param);
+    print(uri);
     return await _handleExecution(() async => await Http.get(uri));
   }
 
   static Future<Http.Response> _call(Function call, String path, Map<String, dynamic> body) async {
     final uri = createUri(path);
+    print(uri);
     return await _handleExecution(() async => await call(uri, body: body));
   }
 
@@ -40,9 +43,10 @@ class Request {
   }
 
   static Uri createUri(String path, [Map<String, dynamic>? param]) {
-    return Common.hasEnv
-        ? Uri.https(dotenv.env['API_DOMAIN']!, path, param)
-        : Uri.http(dotenv.env['API_DOMAIN']!, path, param);
+    final domain = Env.getDomain();
+    return Env.hasEnv
+        ? Uri.https(domain, path, param)
+        : Uri.http(domain, path, param);
   }
 
 }

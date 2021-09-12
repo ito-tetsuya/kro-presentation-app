@@ -30,6 +30,16 @@ class RouterEventStream extends ChangeNotifier {
     }
   });
 
+  void showCustomDialog(Function builder) {
+    _routerAction.sink.add((BuildContext context) =>
+      showDialog(
+        context: context,
+        barrierDismissible: false, // 周りを押下してもダイアログを閉じない
+        builder: (_) => builder(_),
+      )
+    );
+  }
+
   @override
   void dispose() {
     super.dispose();

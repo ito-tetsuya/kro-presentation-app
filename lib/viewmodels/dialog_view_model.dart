@@ -1,4 +1,5 @@
 import 'package:flutter_sample/commons/router_event_stream.dart';
+import 'package:flutter_sample/commons/rtc.dart';
 import 'package:flutter_sample/models/user.dart';
 import 'package:flutter_sample/views/pages/call.dart';
 
@@ -13,8 +14,12 @@ class DialogViewModel extends ChangeNotifierBase {
     RouterEventStream().pushNamed(Call(nickname: nickname,));
   }
 
-  void accept(int userId, String nickname) {
-    WebSocket.accepted(userId, User.signInUser!.id);
+  Future<void> accept(int userId, String nickname) async {
+    await Rtc.makeOffer(userId);
     RouterEventStream().pushNamed(Call(nickname: nickname,));
+  }
+
+  Future<void> decline(int userId) async {
+    WebSocket.hangup(userId, User.signInUser!.id);
   }
 }

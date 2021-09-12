@@ -42,7 +42,7 @@ class User {
   }
 
   static Future<List<User>> getList() async {
-    final response = await Request.callGetApi(ApiPath.user);
+    final response = await Request.callGetApi(ApiPath.user, {'id': signInUser!.id.toString()});
     return (json.decode(response.body) as List)
         .map((json) => User.fromJson(json))
         .toList();

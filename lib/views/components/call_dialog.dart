@@ -32,7 +32,10 @@ class CallDialog extends StatelessWidget {
                   Text(user.nickName),
                   SizedBox(height: 10,),
                   IconButton(
-                    onPressed: () => viewModel.call(user.id, user.nickName),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      viewModel.call(user.id, user.nickName);
+                    },
                     icon: Icon(
                       Icons.call,
                       color: Theme.of(context).primaryColor,

@@ -20,7 +20,6 @@ class Rtc {
 
   static Future<void> setOffer(Map<String, dynamic> info) async {
     print('setOffer start');
-    print(info);
     connection = await _createPeerConnection(info['fromId']);
     await connection!.setRemoteDescription(RTCSessionDescription(info['sdp'], info['type']));
     await _makeAnswer();
@@ -48,6 +47,7 @@ class Rtc {
     toId = targetId;
     localStream = await _getLocalUserMedia();
     const config = {
+      'sdpSemantics': 'unified-plan',
       'iceServers': [
         {
           'urls': ['stun:stun1.l.google.com:19302']
@@ -60,22 +60,28 @@ class Rtc {
     localStream!.getTracks().forEach((track) {
       peer.addTrack(track, localStream!);
     });
+    peer.onRemoveStream = (event) {
+      print('--------------onRemoveStream--------------');
+      if (toId != null) {
+        hangup();
+      }
+    };
     // 相手のストリーム受信時
     peer.onTrack = (event) {
-      print('--------------------------------ontrack-------------------------------------');
-      WebSocket.onAddTrack(event.streams[0]);
+      print('--------------onTrack--------------');
+      if (event.track.kind == 'video') {
+        WebSocket.onAddTrack(event.streams[0]);
+      }
     };
     // candidate
     peer.onIceCandidate = (candidate) {
+      print('----------onIceCandidate-------------');
       final info = {
-        'id': targetId,
-        'candidate': {
-          'candidate': candidate.candidate,
-          'sdpMid': candidate.sdpMid,
-          'sdpMLineIndex': candidate.sdpMlineIndex,
-        }
+        'targetId': targetId,
+        'candidate': candidate.candidate,
+        'sdpMid': candidate.sdpMid,
+        'sdpMLineIndex': candidate.sdpMlineIndex,
       };
-      print(info);
       WebSocket.sendCandidate(info);
     };
     return peer;
@@ -83,6 +89,7 @@ class Rtc {
 
   static void addCandidate(Map<String, dynamic> info) {
     if (connection != null) {
+      print('------addCandidate------');
       connection!.addCandidate(
           RTCIceCandidate(
               info['candidate'],
@@ -122,5 +129,20 @@ class Rtc {
       }
     };
     return await navigator.mediaDevices.getUserMedia(mediaConstraints);
+  }
+
+  static void hangup() {
+    if (toId != null) {
+      WebSocket.hangup(toId!, User.signInUser!.id);
+    }
+    if (connection != null) {
+      connection!.close();
+      connection = null;
+    }
+    if (localStream != null) {
+      localStream!.getTracks().forEach((track) => track.stop());
+      localStream = null;
+    }
+    toId = null;
   }
 }

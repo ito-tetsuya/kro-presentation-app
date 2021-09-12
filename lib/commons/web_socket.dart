@@ -7,6 +7,7 @@ import 'package:flutter_sample/viewmodels/list_view_model.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import 'common.dart';
+import 'env.dart';
 
 class WebSocket extends ChangeNotifier {
   static IO.Socket? socket;
@@ -19,7 +20,7 @@ class WebSocket extends ChangeNotifier {
 
   static void init() {
     socket = IO.io(
-      '${Common.getSchema()}://${dotenv.env['API_DOMAIN']!}',
+      '${Env.getSchema()}://${Env.getDomain()}',
       <String, dynamic>{ 'transports': ['websocket'], 'autoConnect': false, },
     );
     print(socket);
@@ -32,9 +33,6 @@ class WebSocket extends ChangeNotifier {
     socket!.on('call', (data) {
       _callAction.sink.add(MessageInfo(userId: data['fromId']));
     });
-    socket!.on('accepted', (data) {
-      Rtc.makeOffer(data['fromId']);
-    });
     socket!.on('sendOffer', (data) {
       Rtc.setOffer(data);
     });
@@ -43,7 +41,10 @@ class WebSocket extends ChangeNotifier {
     });
     socket!.on('candidate', (data) {
       Rtc.addCandidate(data);
-      // _socketAction.sink.add(MessageInfo(userId: data['id']));
+    });
+    socket!.on('hangup', (data) {
+      Rtc.hangup();
+      _mediaAction.sink.add(MessageInfo());
     });
     socket!.connect();
   }
@@ -56,10 +57,6 @@ class WebSocket extends ChangeNotifier {
     socket!.emit('call', {'targetId': targetId, 'fromId': fromId});
   }
 
-  static void accepted(int targetId, int fromId) {
-    socket!.emit('accepted', {'targetId': targetId, 'fromId': fromId});
-  }
-
   static void sendOffer(Map<String, dynamic> info) {
     socket!.emit('sendOffer', info);
   }
@@ -70,6 +67,10 @@ class WebSocket extends ChangeNotifier {
 
   static void sendCandidate(Map<String, dynamic> info) {
     socket!.emit('candidate', info);
+  }
+
+  static void hangup(int targetId, int fromId) {
+    socket!.emit('hangup', {'targetId': targetId, 'fromId': fromId});
   }
 
   static void onAddTrack(MediaStream stream) {

@@ -35,14 +35,20 @@ class ReceiveDialog extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton(
-                        onPressed: () => viewModel.accept(user.id, user.nickName),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          viewModel.accept(user.id, user.nickName);
+                        },
                         icon: Icon(
                           Icons.phone_callback,
                           color: Theme.of(context).primaryColor,
                         ),
                       ),
                       IconButton(
-                        onPressed: () => print('callend'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          viewModel.decline(user.id);
+                        },
                         icon: Icon(
                           Icons.call_end,
                           color: Colors.red,
